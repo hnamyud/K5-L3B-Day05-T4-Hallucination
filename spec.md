@@ -10,9 +10,9 @@
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
-|Nguyễn Duy Mạnh |2A202603806  |  |
-|  |  |  |
-|  |  |  |
+|Nguyễn Duy Mạnh |2A202603806  |Viết câu chữ AI  |
+|Vũ Xuân Bách  |2A202603803  |Dựng prototype  |
+|Đỗ Triệu Đức Phương  |2A202603843  |Giữ bảng kịch bản và kịch bản demo  |
 
 ## §1. Lát cắt & phạm vi
 - Trong Trò chuyện với Shopee, khi người mua đang báo "hàng nhận không đúng mô tả", AI tự hướng dẫn gửi yêu cầu trả hàng hoàn tiền, xin thêm bằng chứng, hay chuyển nhân viên, để người mua biết đúng bước tiếp theo, và người bán không bị xử thua khi họ đúng.
@@ -361,9 +361,9 @@ Ba mức được sử dụng:
 
 | Thành viên | Mức ban đầu | Lý do |
 |---|---|---|
-| TV1 | Tự làm | Ưu tiên tốc độ xử lý và trải nghiệm người mua. Nếu bằng chứng rõ ràng, AI có thể hoàn tiền nhanh, giảm thời gian chờ nhân viên. Tuy nhiên, cách này có nguy cơ gây thiệt hại tài chính cho người bán khi AI đánh giá sai (S07). |
-| TV2 | Cần người duyệt | Tool trực tiếp chuyển tiền cho người mua và khó đảo ngược. Nếu AI hoàn tiền sai, người bán có thể mất cả tiền lẫn hàng. Vì vậy, cần nhân viên xác minh bằng chứng và phê duyệt trước khi thực hiện. |
-| TV3 | Cấm | Ưu tiên phòng ngừa rủi ro tài chính và hành vi trục lợi. Một quyết định hoàn tiền sai có thể gây thiệt hại lớn, khó khôi phục, đặc biệt với tranh chấp giá trị cao (S07). |
+| Vũ Xuân Bách | Cần người duyệt |  |
+| Nguyễn Duy Mạnh | Cần người duyệt | Tool trực tiếp chuyển tiền cho người mua và khó đảo ngược. Nếu AI hoàn tiền sai, người bán có thể mất cả tiền lẫn hàng. Vì vậy, cần nhân viên xác minh bằng chứng và phê duyệt trước khi thực hiện. |
+| Đỗ Triệu Đức Phương | Cấm | Ưu tiên phòng ngừa rủi ro tài chính và hành vi trục lợi. Một quyết định hoàn tiền sai có thể gây thiệt hại lớn, khó khôi phục, đặc biệt với tranh chấp giá trị cao (S07). |
 
 **Mức đề xuất để nhóm thống nhất: Cần người duyệt.**
 
