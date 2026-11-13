@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shopee AI Trợ Lý - Khiếu nại & Trả hàng</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --shopee-orange: #EE4D2D;
+    --shopee-orange-hover: #d73211;
+    --shopee-light-bg: #F5F5F5;
+    --shopee-border: #E8E8E8;
+    --text-main: #222222;
+    --text-sub: #666666;
+    --text-muted: #888888;
+    --status-green: #26AA99;
+    --status-yellow: #FAAD14;
+    --status-red: #FF4D4F;
+    --bg-yellow: #FFFBE6;
+    --bd-yellow: #FFE58F;
+    --bg-red: #FFF1F0;
+    --bd-red: #FFA39E;
+    --bg-blue: #E6F7FF;
+    --bd-blue: #91CAFF;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #EAE6DF;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Global Top Navigation Bar for Scenarios */
+  .scenario-tabs {
+    width: 100%;
+    max-width: 420px;
+    background: #FFFFFF;
+    display: flex;
+    border-bottom: 2px solid var(--shopee-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-item {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-sub);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-item:hover { color: var(--shopee-orange); }
+  .tab-item.active {
+    color: var(--shopee-orange);
+    border-bottom-color: var(--shopee-orange);
+    background: #FFF8F6;
+  }
+
+  /* Phone Container */
+  .phone-screen {
+    width: 100%;
+    max-width: 420px;
+    background: #F8F8F8;
+    min-height: calc(100vh - 44px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+  }
+
+  /* Shopee App Header */
+  .app-header {
+    background: var(--shopee-orange);
+    color: #FFFFFF;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-back { font-size: 18px; cursor: pointer; }
+  .header-avatar {
+    width: 32px;
+    height: 32px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--shopee-orange);
+    font-size: 14px;
+  }
+  .header-title-box { flex: 1; }
+  .header-name { font-size: 15px; font-weight: 700; }
+  .header-sub { font-size: 11px; opacity: 0.9; }
+
+  /* Scenario Banner */
+  .banner-tag {
+    background: #FFF1F0;
+    border-bottom: 1px solid #FFCCC7;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: #CF1322;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .banner-badge {
+    background: #FF4D4F;
+    color: #FFFFFF;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* Order Summary Card */
+  .order-card {
+    background: #FFFFFF;
+    margin: 8px 10px 0;
+    border-radius: 8px;
+    border: 1px solid var(--shopee-border);
+    padding: 10px 12px;
+  }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-sub);
+    padding-bottom: 6px;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .order-status {
+    color: var(--shopee-orange);
+    font-weight: 600;
+  }
+  .product-row {
+    display: flex;
+    gap: 10px;
+    padding-top: 8px;
+  }
+  .product-thumb {
+    width: 44px;
+    height: 44px;
+    background: #FAFAFA;
+    border: 1px solid #EAEAEA;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .product-detail { flex: 1; }
+  .product-title { font-size: 12.5px; font-weight: 600; line-height: 1.3; }
+  .product-sku { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .product-price { font-size: 13.5px; font-weight: 700; color: var(--shopee-orange); text-align: right; }
+
+  /* Chat Messages Area */
+  .chat-box {
+    flex: 1;
+    padding: 10px 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .time-stamp {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .msg-row {
+    display: flex;
+    gap: 8px;
+  }
+  .msg-row.user {
+    flex-direction: row-reverse;
+  }
+  .avatar-ai {
+    width: 26px;
+    height: 26px;
+    background: var(--shopee-orange);
+    color: #FFFFFF;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .avatar-user {
+    width: 26px;
+    height: 26px;
+    background: #52C41A;
+    color: #FFFFFF;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .bubble {
+    max-width: 82%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .bubble.user-msg {
+    background: var(--shopee-orange);
+    color: #FFFFFF;
+    border-bottom-right-radius: 2px;
+  }
+  .bubble.ai-msg {
+    background: #FFFFFF;
+    color: var(--text-main);
+    border: 1px solid #EAEAEA;
+    border-bottom-left-radius: 2px;
+  }
+
+  /* Specific Card Components */
+  .rule-boundary-card {
+    background: var(--bg-yellow);
+    border: 1px solid var(--bd-yellow);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: 90%;
+  }
+  .rule-boundary-title {
+    font-weight: 700;
+    color: #D48806;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rule-item {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+    color: #595959;
+  }
+  .rule-item.disabled {
+    color: #CF1322;
+    font-weight: 600;
+  }
+
+  .alert-warning-card {
+    background: var(--bg-yellow);
+    border: 1px solid var(--bd-yellow);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    max-width: 90%;
+  }
+  .alert-warning-title {
+    font-weight: 700;
+    color: #D48806;
+    margin-bottom: 4px;
+  }
+
+  /* Evidence Checklist Card */
+  .evidence-box {
+    background: #FFFFFF;
+    border: 1px solid var(--shopee-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    max-width: 92%;
+  }
+  .evidence-box-title {
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .evidence-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 11.5px;
+    border-bottom: 1px solid #F8F8F8;
+  }
+  .status-badge {
+    margin-left: auto;
+    font-size: 10.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .status-badge.ok { color: var(--status-green); }
+  .status-badge.warn { color: var(--status-yellow); }
+  .status-badge.err { color: var(--status-red); }
+
+  /* Verbatim AI Quote */
+  .verbatim-quote {
+    background: #FAFAFA;
+    border-left: 3px solid var(--shopee-orange);
+    border-radius: 0 6px 6px 0;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.5;
+    color: #333333;
+    max-width: 92%;
+  }
+
+  /* Action Buttons Bar */
+  .bottom-action-bar {
+    background: #FFFFFF;
+    border-top: 1px solid var(--shopee-border);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .action-btn-row {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-outline {
+    flex: 1;
+    padding: 9px 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn-primary {
+    flex: 1;
+    padding: 9px 4px;
+    background: var(--shopee-orange);
+    border: 1px solid var(--shopee-orange);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn-primary:hover { background: var(--shopee-orange-hover); }
+  .disclaimer-note {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* Compare Panel (S08) */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .compare-side {
+    background: #FAFAFA;
+    border: 1px solid #EEEEEE;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 11px;
+  }
+  .compare-side-title {
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 6px;
+    padding: 2px 0;
+    border-radius: 4px;
+  }
+  .side-buyer { background: #E6F7FF; color: #0050B3; }
+  .side-seller { background: #FFFBE6; color: #874D00; }
+
+  /* Views Switching */
+  .scenario-content { display: none; }
+  .scenario-content.active { display: flex; flex-direction: column; flex: 1; }
+
+  /* Simple Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  .modal-card {
+    background: #FFFFFF;
+    width: 90%;
+    max-width: 360px;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .modal-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .modal-desc { font-size: 12px; color: var(--text-sub); line-height: 1.4; margin-bottom: 14px; }
+  .modal-btn-row { display: flex; justify-content: flex-end; gap: 8px; }
+</style>
+</head>
+<body>
+
+  <!-- Scenario Switcher Tabs -->
+  <div class="scenario-tabs">
+    <div class="tab-item active" onclick="switchScenario('s07')">S07: Đơn 15 triệu</div>
+    <div class="tab-item" onclick="switchScenario('s08')">S08: Mâu thuẫn</div>
+    <div class="tab-item" onclick="switchScenario('normal')">Đơn bình thường</div>
+  </div>
+
+  <div class="phone-screen">
+
+    <!-- Shopee App Bar -->
+    <div class="app-header">
+      <div class="header-back">&#8592;</div>
+      <div class="header-avatar">AI</div>
+      <div class="header-title-box">
+        <div class="header-name">Trợ lý Shopee</div>
+        <div class="header-sub">Hỗ trợ Trả hàng & Hoàn tiền</div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENARIO S07 ==================== -->
+    <div class="scenario-content active" id="view-s07">
+      <div class="banner-tag">
+        <span class="banner-badge">S07</span>
+        Đơn giá trị lớn (15.000.000đ) vượt ngưỡng tự động xử lý (5.000.000đ)
+      </div>
+
+      <!-- Order Detail -->
+      <div class="order-card">
+        <div class="order-header">
+          <span>Mã đơn: #SH240311-9821</span>
+          <span class="order-status">Đang khiếu nại</span>
+        </div>
+        <div class="product-row">
+          <div class="product-thumb">&#128247;</div>
+          <div class="product-detail">
+            <div class="product-title">Máy ảnh Sony Alpha ZV-E10 Kit 16-50mm</div>
+            <div class="product-sku">Phân loại: Đen | Số lượng: 1</div>
+          </div>
+          <div class="product-price">15.000.000đ</div>
+        </div>
+      </div>
+
+      <!-- Chat Stream -->
+      <div class="chat-box" id="chat-s07">
+        <div class="time-stamp">10:00 AM</div>
+
+        <!-- User Msg -->
+        <div class="msg-row user">
+          <div class="avatar-user">T</div>
+          <div class="bubble user-msg">
+            Hàng 15tr hỏng hết, tôi gửi ảnh rồi. Hoàn tiền ngay đi!
+          </div>
+        </div>
+
+        <!-- AI Ack -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="bubble ai-msg">
+            Mình đã ghi nhận yêu cầu hoàn tiền 15.000.000đ cho đơn #SH240311-9821. Mình đang kiểm tra thông tin và bằng chứng.
+          </div>
+        </div>
+
+        <!-- Component 1: Boundary (HAX G1) -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="rule-boundary-card">
+            <div class="rule-boundary-title">&#9432; Giới hạn thẩm quyền của Trợ lý AI</div>
+            <div class="rule-item">&#10003; Tiếp nhận và đối chiếu thông tin đơn hàng</div>
+            <div class="rule-item">&#10003; Tổng hợp bằng chứng và phát hiện thông tin còn thiếu</div>
+            <div class="rule-item">&#10003; Soạn hồ sơ và chuyển nhân viên thẩm định</div>
+            <div class="rule-item disabled">&#10005; Không có quyền tự phê duyệt hoàn tiền > 5.000.000đ</div>
+          </div>
+        </div>
+
+        <!-- Component 2: Warning (HAX G10) -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="alert-warning-card">
+            <div class="alert-warning-title">&#9888; Cần xác minh trước khi xử lý</div>
+            Mình đã nhận 3 tệp bằng chứng. Tuy nhiên, còn 2 mục chưa đủ căn cứ xác minh lỗi sản phẩm. Hiện chưa có khoản tiền nào được hoàn.
+          </div>
+        </div>
+
+        <!-- Component 3: Evidence Checklist (HAX G2) -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="evidence-box">
+            <div class="evidence-box-title">
+              <span>Bằng chứng đã nhận</span>
+              <span style="color:var(--shopee-orange)">3 file</span>
+            </div>
+            <div class="evidence-row">
+              <span>&#128444; Ảnh màn hình vỡ (EXIF 24h)</span>
+              <span class="status-badge ok">Đã nhận</span>
+            </div>
+            <div class="evidence-row">
+              <span>&#127909; Video mở hộp (chưa rõ timestamp)</span>
+              <span class="status-badge warn">Chưa xác minh</span>
+            </div>
+            <div class="evidence-row">
+              <span>&#128220; Số Serial / IMEI máy ảnh</span>
+              <span class="status-badge err">Chưa có</span>
+            </div>
+            <div class="evidence-row">
+              <span>&#127978; Phản hồi / Biên bản shop</span>
+              <span class="status-badge err">Chưa có</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component 4: Verbatim AI Message (§3.1.2) -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="verbatim-quote">
+            "Mình đã ghi nhận yêu cầu hoàn tiền 15.000.000đ của bạn. Tuy nhiên, bằng chứng hiện tại chưa đủ để xác minh sản phẩm bị lỗi.<br><br>
+            Đây là trường hợp cần nhân viên có thẩm quyền xem xét trước khi đưa ra quyết định. Bạn có thể kiểm tra hoặc bổ sung bằng chứng và yêu cầu chuyển nhân viên.<br><br>
+            Hiện chưa có khoản hoàn tiền nào được thực hiện."
+          </div>
+        </div>
+
+        <div id="done-s07" style="display:none;" class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="bubble ai-msg" style="border: 1px solid var(--status-green); background: #F6FFED;">
+            &#10003; <strong>Đã gửi hồ sơ:</strong> Yêu cầu hoàn tiền 15.000.000đ đã được chuyển tiếp đến Chuyên viên Thẩm định Shopee. Bạn sẽ nhận thông báo kết quả trong vòng 24h.
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-action-bar">
+        <div class="action-btn-row">
+          <button class="btn-outline" onclick="openModal('Xem chi tiết bằng chứng', 'Hệ thống đã nhận 2 ảnh và 1 video. Video cần nhân viên kiểm tra tính liên tục trước khi xác thực.')">Xem bằng chứng</button>
+          <button class="btn-outline" onclick="openModal('Bổ sung bằng chứng', 'Bạn có thể tải thêm ảnh chụp rõ số Serial/IMEI dưới đáy máy ảnh để đẩy nhanh tiến độ.')">Bổ sung</button>
+          <button class="btn-primary" id="btn-transfer-s07" onclick="triggerTransferS07()">Chuyển nhân viên</button>
+        </div>
+        <div class="disclaimer-note">
+          AI không tự phê duyệt khoản hoàn này &bull; Cần nhân viên có thẩm quyền xác minh
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENARIO S08 ==================== -->
+    <div class="scenario-content" id="view-s08">
+      <div class="banner-tag" style="background:#FFFBE6; border-color:#FFE58F; color:#D48806;">
+        <span class="banner-badge" style="background:#FAAD14;">S08</span>
+        Mâu thuẫn bằng chứng: Người mua có clip mở hộp vs Shop tố tráo hàng
+      </div>
+
+      <!-- Order Detail -->
+      <div class="order-card">
+        <div class="order-header">
+          <span>Mã đơn: #SH240229-5503</span>
+          <span class="order-status" style="color:#D48806;">Bằng chứng mâu thuẫn</span>
+        </div>
+        <div class="product-row">
+          <div class="product-thumb">&#128095;</div>
+          <div class="product-detail">
+            <div class="product-title">Giày thể thao Nam Nike AF1 07 - Trắng</div>
+            <div class="product-sku">Size: 42 | Số lượng: 1</div>
+          </div>
+          <div class="product-price">2.800.000đ</div>
+        </div>
+      </div>
+
+      <!-- Chat Stream -->
+      <div class="chat-box" id="chat-s08">
+        <div class="time-stamp">02:15 PM</div>
+
+        <div class="msg-row user">
+          <div class="avatar-user">T</div>
+          <div class="bubble user-msg">
+            Shop bảo tôi tráo hàng, nhưng tôi gửi clip mở hộp rồi. Sao lại bác khiếu nại??
+          </div>
+        </div>
+
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="verbatim-quote">
+            "Mình hiểu bạn đang phản đối kết quả xử lý khiếu nại.<br><br>
+            Hiện thông tin giữa bạn và người bán chưa thống nhất. Mình chưa có đủ căn cứ để xác định video mở hộp có chứng minh đầy đủ sự việc hay không.<br><br>
+            Bạn có thể xem lại bằng chứng và yêu cầu nhân viên xem xét lại quyết định. Mình sẽ không tự thay đổi kết quả khi chưa có xác minh."
+          </div>
+        </div>
+
+        <!-- Evidence Compare Grid (HAX G10) -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="evidence-box" style="width:100%;">
+            <div class="evidence-box-title">
+              <span>Đối chiếu bằng chứng 2 bên</span>
+              <span style="color:#CF1322">Chưa thống nhất</span>
+            </div>
+            <div class="compare-grid">
+              <div class="compare-side">
+                <div class="compare-side-title side-buyer">Người mua</div>
+                <div>&bull; Clip unbox: 2m34s</div>
+                <div>&bull; 3 ảnh giày sai mã</div>
+                <div style="color:var(--status-yellow);margin-top:4px;">&#9888; Clip chưa kiểm tra tính liên tục</div>
+              </div>
+              <div class="compare-side">
+                <div class="compare-side-title side-seller">Người bán</div>
+                <div>&bull; Ảnh đóng gói xuất kho</div>
+                <div>&bull; Biên bản dán tem</div>
+                <div style="color:var(--status-red);margin-top:4px;">&#10005; Thiếu video camera kho</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boundary Note -->
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="rule-boundary-card">
+            <div class="rule-boundary-title">&#9888; Quyền hạn AI: Không tự đảo ngược phán quyết</div>
+            <div style="color:#595959; font-size:11.5px;">
+              Khi hai bên có bằng chứng xung đột, AI không tự phán quyết bên nào đúng. Quyết định sẽ do Trọng tài viên Shopee độc lập phân xử.
+            </div>
+          </div>
+        </div>
+
+        <div id="done-s08" style="display:none;" class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="bubble ai-msg" style="border: 1px solid var(--status-green); background: #F6FFED;">
+            &#10003; <strong>Đã tiếp nhận phản đối:</strong> Hồ sơ đã được chuyển lên bộ phận Trọng tài Khiếu nại Shopee. Chúng tôi sẽ liên hệ phỏng vấn hai bên trong 48h.
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-action-bar">
+        <div class="action-btn-row">
+          <button class="btn-outline" onclick="openModal('Bổ sung thêm bằng chứng', 'Bạn có thể gửi thêm góc quay cận cảnh tem niêm phong lúc bóc hộp.')">Bổ sung chứng cứ</button>
+          <button class="btn-primary" id="btn-dispute-s08" onclick="triggerDisputeS08()">Yêu cầu xem xét lại</button>
+        </div>
+        <div class="disclaimer-note">
+          Quyền phản đối theo HAX G9 &bull; Chuyển trọng tài viên Shopee xem xét độc lập
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCENARIO NORMAL ==================== -->
+    <div class="scenario-content" id="view-normal">
+      <div class="banner-tag" style="background:#E6F7FF; border-color:#91CAFF; color:#0050B3;">
+        <span class="banner-badge" style="background:#1890FF;">Bình thường</span>
+        Đơn giá trị nhỏ (450.000đ), giao nhầm size - Shop đã nhận sai
+      </div>
+
+      <div class="order-card">
+        <div class="order-header">
+          <span>Mã đơn: #SH240315-3301</span>
+          <span class="order-status" style="color:#1890FF;">Yêu cầu đổi/trả</span>
+        </div>
+        <div class="product-row">
+          <div class="product-thumb">&#128085;</div>
+          <div class="product-detail">
+            <div class="product-title">Áo thun Cotton Supima Trắng</div>
+            <div class="product-sku">Đặt size L &bull; Nhận size M (Giao nhầm)</div>
+          </div>
+          <div class="product-price">450.000đ</div>
+        </div>
+      </div>
+
+      <div class="chat-box" id="chat-normal">
+        <div class="time-stamp">09:30 AM</div>
+
+        <div class="msg-row user">
+          <div class="avatar-user">T</div>
+          <div class="bubble user-msg">
+            Mình đặt áo size L mà nhận size M. Shop nhận nhầm rồi, giờ hoàn tiền sao?
+          </div>
+        </div>
+
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="bubble ai-msg">
+            Dạ Shopee đã kiểm tra tin nhắn shop xác nhận gửi nhầm size. Trường hợp này bạn được hỗ trợ trả hàng hoàn tiền 100% miễn phí vận chuyển.
+          </div>
+        </div>
+
+        <div class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="evidence-box" style="width:100%;">
+            <div class="evidence-box-title">Hướng dẫn 2 bước đơn giản</div>
+            <div class="evidence-row">
+              <span>1. Chụp 1 ảnh nhãn mác áo size M</span>
+              <span class="status-badge ok">Cần làm</span>
+            </div>
+            <div class="evidence-row">
+              <span>2. Bấm "Tạo yêu cầu" để nhận mã gửi hàng</span>
+              <span class="status-badge ok">AI tự xử lý</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="done-normal" style="display:none;" class="msg-row">
+          <div class="avatar-ai">AI</div>
+          <div class="bubble ai-msg" style="border: 1px solid var(--status-green); background: #F6FFED;">
+            &#10003; <strong>Đã tạo yêu cầu thành công:</strong> Mã vận đơn trả hàng miễn phí là <strong>SPX-RTN-998</strong>. Shipper sẽ đến lấy hàng trong 24h.
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-action-bar">
+        <div class="action-btn-row">
+          <button class="btn-primary" id="btn-create-normal" onclick="triggerNormal()">Tạo yêu cầu Trả hàng / Hoàn tiền</button>
+        </div>
+        <div class="disclaimer-note">
+          AI tự chủ hoàn toàn &bull; Giá trị thấp & Shop đồng thuận không cần qua nhân viên
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Reusable Dialog Modal -->
+  <div class="modal-overlay" id="generic-modal" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-title" id="modal-title">Tiêu đề</div>
+      <div class="modal-desc" id="modal-desc">Nội dung chi tiết...</div>
+      <div class="modal-btn-row">
+        <button class="btn-primary" onclick="closeModal()" style="padding:6px 16px;">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function switchScenario(id) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.scenario-content').forEach(c => c.classList.remove('active'));
+
+    if (id === 's07') {
+      document.querySelectorAll('.tab-item')[0].classList.add('active');
+      document.getElementById('view-s07').classList.add('active');
+    } else if (id === 's08') {
+      document.querySelectorAll('.tab-item')[1].classList.add('active');
+      document.getElementById('view-s08').classList.add('active');
+    } else {
+      document.querySelectorAll('.tab-item')[2].classList.add('active');
+      document.getElementById('view-normal').classList.add('active');
+    }
+  }
+
+  function openModal(title, desc) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-desc').textContent = desc;
+    document.getElementById('generic-modal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('generic-modal').style.display = 'none';
+  }
+
+  function triggerTransferS07() {
+    const btn = document.getElementById('btn-transfer-s07');
+    btn.disabled = true;
+    btn.textContent = "Đang chuyển...";
+    setTimeout(() => {
+      document.getElementById('done-s07').style.display = 'flex';
+      btn.textContent = "Đã gửi nhân viên";
+      const box = document.getElementById('chat-s07');
+      box.scrollTop = box.scrollHeight;
+    }, 600);
+  }
+
+  function triggerDisputeS08() {
+    const btn = document.getElementById('btn-dispute-s08');
+    btn.disabled = true;
+    btn.textContent = "Đang gửi phản đối...";
+    setTimeout(() => {
+      document.getElementById('done-s08').style.display = 'flex';
+      btn.textContent = "Đã chuyển Trọng tài";
+      const box = document.getElementById('chat-s08');
+      box.scrollTop = box.scrollHeight;
+    }, 600);
+  }
+
+  function triggerNormal() {
+    const btn = document.getElementById('btn-create-normal');
+    btn.disabled = true;
+    btn.textContent = "Đang tạo...";
+    setTimeout(() => {
+      document.getElementById('done-normal').style.display = 'flex';
+      btn.textContent = "Đã tạo yêu cầu";
+      const box = document.getElementById('chat-normal');
+      box.scrollTop = box.scrollHeight;
+    }, 600);
+  }
+</script>
+</body>
+</html>
