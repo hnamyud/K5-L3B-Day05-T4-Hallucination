@@ -1,11 +1,4 @@
-# Dàn ý bài nộp *(spec.md — nộp trước 23:59 ngày lab của lớp)*
-
-> Copy dàn ý này vào `spec.md` của nhóm. Đây **không** phải form để điền đủ ô: mỗi mục chỉ cần đủ **bằng chứng** và **lập luận** ghi bên dưới. Viết ngắn, gạch đầu dòng là được. Hướng dẫn từng chặng: `02-guide.md`. Cách chấm: `04-rubric.md`.
->
-> **Một quyết định = bốn ý:** đã cân nhắc phương án nào · chọn phương án nào · vì sao · loại các phương án kia vì sao. Bằng chứng = lập luận trỏ về một chỗ cụ thể: tool nào, dòng dữ liệu nào của track, điều gì trong mục "Sản phẩm thật hôm nay", chỗ nào trên prototype (ảnh đánh số). Không chạy agent.
-
-# Bài nộp LAB5 — [Track] · Nhóm [tên]
-[Danh sách thành viên và việc mỗi người làm — copy bảng từ README]
+# Bài nộp LAB5 — Track 4 · Nhóm Hallucination
 **Lớp:** L3B · **Bàn / zone:** G · **Track:** 4
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
@@ -532,12 +525,70 @@ Nếu AI sai, người bán có thể chịu thiệt hại và người mua có 
 
 
 ## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
 
-## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+- **File prototype:** [prototype.html](./prototype/prototype.html)
+- **Công cụ:** HTML5, CSS3, JavaScript thuần (Vanilla JS) mô phỏng Shopee Mobile Chat.
+- **Phần mock:** Dữ liệu đơn hàng #SH240311-9821 (15.000.000đ), tệp ảnh/video đính kèm, trạng thái đối chiếu và luồng phản hồi của nhân viên.
+- **Có lời gọi AI thật không:** **Không** (chạy hoàn toàn theo rule-based logic dựa trên kịch bản §3 để loại bỏ hallucination).
 
-## §7. Demo
-- Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
+---
+
+### Ảnh giao diện Prototype (Kịch bản S07 — Đơn 15tr)
+
+![Ảnh 1: Tiếp nhận và Nêu ranh giới thẩm quyền AI](/prototype/screenshots/s07_part1.jpg)
+![Ảnh 2: Đối chiếu bằng chứng và Chuyển giao thẩm quyền](/prototype/screenshots/s07_part2.jpgs)
+
+#### Chú thích đánh số trên màn hình:
+
+| Số | Vị trí trên màn hình | Thể hiện gì | Nguyên tắc HAX/PAIR | Mức tự chủ |
+|---|---|---|---|---|
+| **①** | Khung ranh giới AI | Ghi rõ giới hạn: AI chỉ kiểm tra/tổng hợp; mục gạch chéo đỏ: *"Không có quyền tự phê duyệt hoàn tiền > 5.000.000đ"*. | **HAX G1** (Làm rõ hệ thống làm được gì & giới hạn); **PAIR Explainability** | **Cần người duyệt** (khóa quyền tự duyệt hoàn tiền) |
+| **②** | Cảnh báo trạng thái | Thông báo *"Cần xác minh trước khi xử lý"*, nêu rõ có 2 mục chưa đủ căn cứ và *"Hiện chưa có khoản hoàn tiền nào được thực hiện"*. | **HAX G10** (Thu hẹp phạm vi khi nghi ngờ); **PAIR Graceful Failure** | **Tự làm** (tra cứu trạng thái đơn và rule) |
+| **③** | Danh sách bằng chứng | Bảng đối chiếu 3 mức: **Đã nhận** (ảnh vỡ có EXIF), **Chưa xác minh** (clip mở hộp), **Chưa có** (Serial/IMEI, phản hồi shop). | **HAX G2** (Truyền đạt mức độ chắc chắn); tách bạch giữa *"đã nhận file"* và *"đã xác minh nội dung"* | **Tự làm có điều kiện** (đọc tệp bằng chứng qua `get_evidence`) |
+| **④** | Hộp trích dẫn quyết định  | Lời thoại chuẩn (§3.1.2): giải thích lý do cần người có thẩm quyền xem xét trước khi đưa ra quyết định; không cam kết bừa. | **HAX G11** (Thừa nhận giới hạn hệ thống); **PAIR Trust** | **Tự làm** (phát ngôn theo mẫu chuẩn) |
+| **⑤** | Thông báo kết quả & Thanh tác vụ  | Hộp xác nhận xanh lá: *"Đã gửi hồ sơ... đến Chuyên viên Thẩm định Shopee"* + nút chuyển trạng thái *"Đã gửi nhân viên"*. Dưới chân trang có ghi chú giới hạn. | **PAIR Human Oversight** (Human-in-the-loop: con người quyết định phê duyệt; im lặng không coi là đồng ý) | **Cần người duyệt** (kích hoạt luồng `chuyen_truong_nhom`) |
+
+---
+
+### Quyết định thiết kế
+
+- **Cách hiện độ chắc chắn / Bằng chứng:**
+  - *Đã chọn:* Nhãn 3 trạng thái định tính bằng màu sắc (`Đã nhận` / `Chưa xác minh` / `Chưa có`).
+  - *Đã loại:* Hiển thị phần trăm tin cậy vì AI chưa được hiệu chuẩn xác suất thực tế, dễ gây tranh cãi và ngộ nhận với khách hàng; loại cả việc chỉ báo "Từ chối" chung chung vì biến AI thành hộp đen.
+  - *Vì sao chọn:* Minh bạch từng căn cứ, chỉ rõ người dùng còn thiếu gì (Serial, phản hồi shop) để bổ sung.
+
+- **Cách điều khiển mức tự chủ:**
+  - *Đã chọn:* Kiểm soát cứng tại tầng thực thi (Hard Gateway): đơn ≥ 5tr (S07) lập tức vô hiệu hóa quyền gọi `soan_hoan_tien`, chỉ cho phép chuẩn bị hồ sơ và hiển thị nút chuyển nhân viên.
+  - *Đã loại:* Cho AI tự duyệt nếu khách cam kết (quá rủi ro tài chính, tiền ra khỏi sàn không thu hồi được); loại phương án bắt nhân viên duyệt cả đơn nhỏ (gây nghẽn hệ thống).
+  - *Vì sao chọn:* Cân bằng tối ưu giữa **Cost-of-Error** (thiệt hại tài chính không đảo ngược) và **User Agency** (quyền chủ động của người dùng).
+
+## §6. Tốt là gì (chặng 6)
+
+### 1. Ba tiêu chí đánh giá Pass/Fail
+
+Nhóm sử dụng ba tiêu chí để đánh giá chất lượng prototype, tập trung vào khả năng ngăn hành động vượt quyền, minh bạch bằng chứng và bảo đảm quyền kiểm soát của người dùng.
+
+| ID | Tiêu chí | Pass | Fail |
+|---|---|---|---|
+| C01 | **Ngăn hành động vượt quyền** | Với đơn hàng có giá trị từ 5.000.000đ trở lên hoặc bằng chứng chưa đủ căn cứ, AI không thể tự gọi tool `soan_hoan_tien` hoặc tự đưa ra quyết định cuối cùng. | AI vẫn có thể thực hiện hoàn tiền hoặc phán quyết khi chưa được phê duyệt. |
+| C02 | **Minh bạch bằng chứng** | Prototype phân biệt rõ ba trạng thái: Đã nhận, Chưa xác minh và Chưa có; không tuyên bố đã xác minh khi mới nhận tệp. | AI đánh đồng việc nhận tệp với xác minh nội dung hoặc bỏ qua bằng chứng quan trọng. |
+| C03 | **Bảo đảm quyền kiểm soát của người dùng** | Người dùng được xem căn cứ, bổ sung bằng chứng và yêu cầu nhân viên xem xét; hệ thống chỉ xác nhận chuyển giao khi thao tác thành công. | AI tự đóng khiếu nại, tự quyết định thay người dùng hoặc thông báo đã chuyển nhân viên khi chưa có xác nhận thực tế. |
+
+### 2. Đánh giá thiết kế trên hai kịch bản rủi ro cao
+
+| Tiêu chí | S07 – Hoàn tiền 15 triệu | S08 – Bằng chứng mâu thuẫn |
+|---|---|---|
+| C01 – Ngăn hành động vượt quyền | **Pass theo thiết kế:** Khóa quyền tự hoàn tiền đối với đơn vượt ngưỡng 5 triệu đồng. | **Pass theo thiết kế:** Không cho AI tự từ chối khiếu nại khi chưa được nhân viên phê duyệt. |
+| C02 – Minh bạch bằng chứng | **Pass theo thiết kế:** Phân biệt ảnh đã nhận, video chưa xác minh và bằng chứng còn thiếu. | **Pass theo thiết kế:** Hiển thị bằng chứng hai bên và những điểm chưa được xác minh. |
+| C03 – Quyền kiểm soát người dùng | **Pass theo thiết kế:** Có lựa chọn bổ sung bằng chứng và yêu cầu nhân viên. | **Pass theo thiết kế:** Có lựa chọn phản đối, bổ sung bằng chứng và yêu cầu xem xét lại. |
+
+### 3. Lỗi còn lại và giới hạn
+
+Mặc dù thiết kế đáp ứng ba tiêu chí ở mức thiết kế, prototype vẫn còn những giới hạn:
+
+- Chưa kiểm chứng khả năng chặn tool hoàn tiền thực tế tại tầng backend.
+- Chưa kiểm tra đầy đủ trường hợp tool chuyển nhân viên thất bại hoặc phản hồi chậm.
+- Chưa có cơ chế tự động xác minh nội dung hình ảnh và video để phân biệt bằng chứng hợp lệ với bằng chứng không liên quan.
+- Chưa đánh giá trên nhiều trường hợp dữ liệu thực tế và các cách diễn đạt khác nhau của người dùng.
+
+**Kết luận:** Prototype đạt ba tiêu chí theo thiết kế và thể hiện được cách xử lý hai kịch bản rủi ro cao. Tuy nhiên, chưa thể kết luận hệ thống Pass trong môi trường vận hành thực tế vì chưa thực hiện kiểm thử tích hợp với các tool và backend.
